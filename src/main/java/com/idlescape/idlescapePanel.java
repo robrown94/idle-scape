@@ -1,76 +1,148 @@
 package com.idlescape;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.text.NumberFormat;
-import java.util.Locale;
+import java.util.function.IntConsumer;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import net.runelite.client.ui.PluginPanel;
 
 public class idlescapePanel extends PluginPanel
 {
-    private final JLabel titleLbl = new JLabel("idlescape");
+    // Header
     private final JLabel goldLbl = new JLabel();
     private final JLabel gpsLbl  = new JLabel();
-    private final JLabel minersLbl = new JLabel();
-    private final JLabel woodcuttersLbl = new JLabel();
-    private final JLabel fishersLbl = new JLabel();
+    private final JLabel clickLbl = new JLabel();
 
-    private final JButton minerBtn = new JButton("Buy Miner");
-    private final JButton woodBtn  = new JButton("Buy Woodcutter");
-    private final JButton fishBtn  = new JButton("Buy Fisher");
-    private final JButton clickBtn = new JButton("Click for +1 gold");
+    // Generators
+    private final JButton[] genBtn;
+    private final JLabel[]  genLbl;
 
-    private final NumberFormat nf = NumberFormat.getIntegerInstance(Locale.US);
+    // Upgrades
+    private final JButton[] upBtn;
+    private final JLabel[]  upLbl;
 
-    public idlescapePanel(Runnable buyMiner, Runnable buyWoodcutter, Runnable buyFisher, Runnable manualClick)
+    private final JButton clickBtn = new JButton("Click");
+
+    public idlescapePanel(
+            IntConsumer onBuyGen,
+            IntConsumer onBuyUp,
+            Runnable onClick,
+            String[] genNames,
+            String[] upNames
+    )
     {
         setLayout(new BorderLayout(6, 6));
 
-        JPanel title = new JPanel(new GridLayout(2, 1, 4, 4));
-        title.add(titleLbl);
-        add(title, BorderLayout.NORTH);
-
-        JPanel header = new JPanel(new GridLayout(2, 1, 4, 4));
+        // Header
+        JPanel header = new JPanel(new GridLayout(3, 1, 2, 2));
         header.add(goldLbl);
         header.add(gpsLbl);
+        header.add(clickLbl);
         add(header, BorderLayout.NORTH);
 
-        JPanel shop = new JPanel(new GridLayout(3, 2, 4, 4));
-        minerBtn.addActionListener(e -> buyMiner.run());
-        woodBtn.addActionListener(e -> buyWoodcutter.run());
-        fishBtn.addActionListener(e -> buyFisher.run());
+        // Body (scrollable)
+        JPanel body = new JPanel();
+        body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
 
-        shop.add(minerBtn);        shop.add(minersLbl);
-        shop.add(woodBtn);         shop.add(woodcuttersLbl);
-        shop.add(fishBtn);         shop.add(fishersLbl);
+        // Generators section
+        body.add(sectionLabel("Generators"));
+        JPanel gList = new JPanel(new GridLayout(0, 2, 4, 4));
+        genBtn = new JButton[genNames.length];
+        genLbl = new JLabel[genNames.length];
+        for (int i = 0; i < genNames.length; i++)
+        {
+            genBtn[i] = new JButton("Buy " + genNames[i]);
+            final int idx = i;
+            genBtn[i].addActionListener(e -> onBuyGen.accept(idx));
+            genLbl[i] = new JLabel("Owned: 0");
+            gList.add(genBtn[i]); gList.add(genLbl[i]);
+        }
+        body.add(gList);
+        body.add(Box.createVerticalStrut(8));
 
-        add(shop, BorderLayout.CENTER);
+        // Upgrades section
+        body.add(sectionLabel("Upgrades (one-time)"));
+        JPanel uList = new JPanel(new GridLayout(0, 2, 4, 4));
+        upBtn = new JButton[upNames.length];
+        upLbl = new JLabel[upNames.length];
+        for (int i = 0; i < upNames.length; i++)
+        {
+            upBtn[i] = new JButton("Buy " + upNames[i]);
+            final int idx = i;
+            upBtn[i].addActionListener(e -> onBuyUp.accept(idx));
+            upLbl[i] = new JLabel("Not purchased");
+            uList.add(upBtn[i]); uList.add(upLbl[i]);
+        }
+        body.add(uList);
 
-        clickBtn.addActionListener(e -> manualClick.run());
+        JScrollPane scroll = new JScrollPane(body);
+        scroll.setBorder(null);
+        scroll.setPreferredSize(new Dimension(250, 420));
+        add(scroll, BorderLayout.CENTER);
+
+        // Click button
+        clickBtn.addActionListener(e -> onClick.run());
         add(clickBtn, BorderLayout.SOUTH);
     }
 
-    /** Now shows costs in the right-hand labels and tooltips on the buttons. */
-    public void updateState(long gold, int miners, int woodcutters, int fishers, int gps,
-                            long nextMinerCost, long nextWoodCost, long nextFishCost)
+    private JLabel sectionLabel(String txt)
     {
-        goldLbl.setText("Gold: " + nf.format(gold));
-        gpsLbl.setText("Gold/sec: " + nf.format(gps));
+        JLabel l = new JLabel(txt);
+        l.setAlignmentX(LEFT_ALIGNMENT);
+        return l;
+    }
 
-        minersLbl.setText("Miners: " + miners);
-        woodcuttersLbl.setText("Woodcutters: " + woodcutters);
-        fishersLbl.setText("Fishers: " + fishers);
+    /**
+     * Costs in tooltips only; buttons auto-enable/disable.
+     * genGpsPerUnit[i] = effective GPS gained if you buy one more of generator i.
+     */
+    public void updateState(
+            long gold,
+            int gps,
+            long clickPower,
+            int[] gensOwned,
+            boolean[] upsOwned,
+            long[] genCosts,
+            long[] upCosts,
+            String[] upDescs,
+            long[] genGpsPerUnit
+    )
+    {
+        goldLbl.setText("Gold: " + String.format("%,d", gold));
+        gpsLbl.setText("Gold/sec: " + String.format("%,d", gps));
+        clickLbl.setText("Click power: +" + clickPower);
+        clickBtn.setText("Click +" + clickPower);
 
-        minerBtn.setEnabled(gold >= nextMinerCost);
-        woodBtn.setEnabled(gold >= nextWoodCost);
-        fishBtn.setEnabled(gold >= nextFishCost);
+        // Generators
+        for (int i = 0; i < genBtn.length; i++)
+        {
+            boolean can = gold >= genCosts[i];
+            genBtn[i].setEnabled(can);
+            long current = (long)gensOwned[i] * genGpsPerUnit[i];
+            genBtn[i].setToolTipText(
+                    "Cost: " + String.format("%,d", genCosts[i]) +
+                            "   •   +" + String.format("%,d", genGpsPerUnit[i]) + " gps per unit" +
+                            "   •   current: " + String.format("%,d", current) + " gps"
+            );
+            genLbl[i].setText("Owned: " + gensOwned[i]);
+        }
 
-        minerBtn.setToolTipText("Cost: " + nf.format(nextMinerCost));
-        woodBtn.setToolTipText("Cost: " + nf.format(nextWoodCost));
-        fishBtn.setToolTipText("Cost: " + nf.format(nextFishCost));
+        // Upgrades
+        for (int i = 0; i < upBtn.length; i++)
+        {
+            boolean purchased = upsOwned[i];
+            upBtn[i].setEnabled(!purchased && gold >= upCosts[i]);
+            upBtn[i].setToolTipText((purchased ? "[Purchased]  " : "") +
+                    "Cost: " + String.format("%,d", upCosts[i]) +
+                    "   •   " + upDescs[i]);
+            upLbl[i].setText(purchased ? "Purchased" : "Not purchased");
+        }
 
         revalidate();
         repaint();

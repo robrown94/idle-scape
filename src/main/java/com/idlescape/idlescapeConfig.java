@@ -10,30 +10,32 @@ public interface idlescapeConfig extends Config
     @ConfigItem(
             keyName = "gold",
             name = "Gold",
-            description = "Total gold saved",
-            secret = false
+            description = "Total gold saved"
     )
     default long gold() { return 0L; }
 
+    // CSV of generator counts (length = number of generators)
     @ConfigItem(
-            keyName = "miners",
-            name = "Miners",
-            description = "Number of miners owned"
+            keyName = "gensCsv",
+            name = "Generators CSV",
+            description = "Internal storage (do not edit)"
     )
-    default int miners() { return 0; }
+    default String gensCsv() { return ""; }
 
+    // CSV of upgrade flags (0/1 for each upgrade)
     @ConfigItem(
-            keyName = "woodcutters",
-            name = "Woodcutters",
-            description = "Number of woodcutters owned"
+            keyName = "upsCsv",
+            name = "Upgrades CSV",
+            description = "Internal storage (do not edit)"
     )
-    default int woodcutters() { return 0; }
+    default String upsCsv() { return ""; }
 
+    // Reset checkbox trigger (handled in plugin, then flipped back false)
     @ConfigItem(
-            keyName = "fishers",
-            name = "Fishers",
-            description = "Number of fishers owned"
+            keyName = "reset_now",
+            name = "Reset all progress",
+            description = "Check to trigger a full reset (you'll be asked to confirm).",
+            position = 99
     )
-    default int fishers() { return 0; }
+    default boolean reset_now() { return false; }
 }
-
