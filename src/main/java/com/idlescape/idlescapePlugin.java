@@ -44,7 +44,7 @@ public class idlescapePlugin extends Plugin
     }
 
     private static GenDef g(String name, int idx, int gps) {
-        long base = (long)Math.round(50 * Math.pow(1.9, idx));
+        long base = (long)Math.round(50 * Math.pow(5, idx));
         return new GenDef(name, base, 1.15, gps);
     }
     // 30 generators
@@ -61,20 +61,20 @@ public class idlescapePlugin extends Plugin
     // 30 upgrades
     private static final UpDef[] UP = new UpDef[] {
             u("leather gloves",          500,        1, 1.0),
-            u("bronze gloves",           1_250,      1, 1.0),
-            u("iron gloves",             3_000,      2, 1.0),
-            u("steel gloves",            6_000,      2, 1.0),
-            u("mithril gloves",          12_000,     3, 1.0),
-            u("adamant gloves",          25_000,     3, 1.0),
-            u("rune gloves",             50_000,     4, 1.0),
-            u("dragon gloves",           100_000,    5, 1.0),
-            u("barrows gloves",          200_000,    6, 1.0),
-            u("ferocious gloves",        400_000,    8, 1.0),
-            u("ring of wealth",          800_000,    10,1.0),
-            u("expert clicks I",         1_600_000,  5, 1.0),
-            u("expert clicks II",        3_200_000,  6, 1.0),
-            u("expert clicks III",       6_400_000,  8, 1.0),
-            u("expert clicks IV",        12_800_000, 10,1.0),
+            u("bronze gloves",           1_250,      2, 1.0),
+            u("iron gloves",             3_000,      4, 1.0),
+            u("steel gloves",            6_000,      8, 1.0),
+            u("mithril gloves",          12_000,     16, 1.0),
+            u("adamant gloves",          25_000,     32, 1.0),
+            u("rune gloves",             50_000,     64, 1.0),
+            u("dragon gloves",           100_000,    128, 1.0),
+            u("barrows gloves",          200_000,    256, 1.0),
+            u("ferocious gloves",        400_000,    512, 1.0),
+            u("ring of wealth",          800_000,    1024,1.0),
+            u("expert clicks I",         1_600_000,  2048, 1.0),
+            u("expert clicks II",        3_200_000,  4096, 1.0),
+            u("expert clicks III",       6_400_000,  8192, 1.0),
+            u("expert clicks IV",        12_800_000, 16384,1.0),
 
             u("guild charter",           2_000,      0, 1.05),
             u("blessed symbol",          6_000,      0, 1.10),
@@ -87,11 +87,11 @@ public class idlescapePlugin extends Plugin
             u("masterwork anvils",       10_000_000, 0, 1.45),
             u("king's decree",           25_000_000, 0, 1.50),
 
-            u("divine gloves",           2_500_000,  12, 1.0),
-            u("shadow gloves",           5_000_000,  15, 1.0),
-            u("celestial gloves",        10_000_000, 18, 1.0),
-            u("soulbound gloves",        20_000_000, 22, 1.0),
-            u("elder gloves",            40_000_000, 28, 1.0)
+            u("divine gloves",           2_500_000,  20000, 1.0),
+            u("shadow gloves",           5_000_000,  30000, 1.0),
+            u("celestial gloves",        10_000_000, 40000, 1.0),
+            u("soulbound gloves",        20_000_000, 50000, 1.0),
+            u("elder gloves",            40_000_000, 60000, 1.0)
     };
 
     // ===== DI / UI =====

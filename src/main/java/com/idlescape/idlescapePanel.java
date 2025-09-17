@@ -39,12 +39,21 @@ public class idlescapePanel extends PluginPanel
     {
         setLayout(new BorderLayout(6, 6));
 
+        clickBtn.addActionListener(e -> onClick.run());
+
         // Header
-        JPanel header = new JPanel(new GridLayout(3, 1, 2, 2));
+        JPanel header = new JPanel(new GridLayout(4, 1, 2, 2));
         header.add(goldLbl);
         header.add(gpsLbl);
         header.add(clickLbl);
+        header.add(clickBtn);
         add(header, BorderLayout.NORTH);
+
+
+        // Click button
+
+        //add(clickBtn, BorderLayout.NORTH);
+
 
         // Body (scrollable)
         JPanel body = new JPanel();
@@ -83,12 +92,10 @@ public class idlescapePanel extends PluginPanel
 
         JScrollPane scroll = new JScrollPane(body);
         scroll.setBorder(null);
-        scroll.setPreferredSize(new Dimension(250, 420));
+        scroll.setPreferredSize(new Dimension(250, 800));
         add(scroll, BorderLayout.CENTER);
 
-        // Click button
-        clickBtn.addActionListener(e -> onClick.run());
-        add(clickBtn, BorderLayout.SOUTH);
+
     }
 
     private JLabel sectionLabel(String txt)
